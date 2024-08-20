@@ -1,0 +1,25 @@
+stages:
+  - test
+  - build
+
+unit_tests:
+  stage: test
+  script:
+    - echo "Running Unit Tests..."
+    - mvn test
+  artifacts:
+    reports:
+      junit: target/surefire-reports
+  allow_failure: false
+
+build:
+  stage: build
+  script:
+    - echo "Building the project..."
+    - mvn packag
+  artifacts:
+    paths:
+      - build/libs/*.jar
+      - target/*.jar
+
+
