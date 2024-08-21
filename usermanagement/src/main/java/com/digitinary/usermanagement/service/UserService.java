@@ -2,6 +2,7 @@ package com.digitinary.usermanagement.service;
 
 
 import com.digitinary.usermanagement.dto.ReservationDto;
+import com.digitinary.usermanagement.dto.UserFilterationDto;
 import com.digitinary.usermanagement.entity.User;
 import com.digitinary.usermanagement.exception.AlreadyExistsRecordException;
 import com.digitinary.usermanagement.exception.FailedToInsertRecordException;
@@ -10,10 +11,14 @@ import com.digitinary.usermanagement.mapper.UserMapper;
 import com.digitinary.usermanagement.model.MembershipModel;
 import com.digitinary.usermanagement.model.UserModel;
 import com.digitinary.usermanagement.repository.UserRepository;
+import com.digitinary.usermanagement.repository.specifications.UserSpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -77,5 +82,31 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if(optionalUser.isEmpty()) throw new AlreadyExistsRecordException("user exists");
         return userMapper.toUserModel(optionalUser.get());
+    }
+
+    public Page<UserModel> getAllUsers(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+        Page<UserModel> userModels = userPage.map(userMapper::toUserModel);
+        return userModels;
+    }
+
+    public Page<UserModel> searchUsers(UserFilterationDto userFilterationDto, Pageable pageable) {
+        Specification<User> specs = Specification.where(null);
+        if(userFilterationDto.getPassedUserId() != null) {
+            specs  = specs.and(UserSpecs.hasId(userFilterationDto.getPassedUserId()));
+        }
+        if(userFilterationDto.getPassedUserName() != null) {
+            specs  = specs.and(UserSpecs.containsName(userFilterationDto.getPassedUserName()));
+        }
+        if(userFilterationDto.getPassedUserPhoneNumber() != null) {
+            specs  = specs.and(UserSpecs.containsPhoneNumber(userFilterationDto.getPassedUserPhoneNumber()));
+        }
+        if(userFilterationDto.getPassedUserMembershipId() != null) {
+            specs  = specs.and(UserSpecs.hasMembershipId(userFilterationDto.getPassedUserMembershipId()));
+        }
+
+        Page<User> users = userRepository.findAll(specs, pageable);
+        Page<UserModel> userModels = users.map(userMapper::toUserModel);
+        return userModels;
     }
 }
