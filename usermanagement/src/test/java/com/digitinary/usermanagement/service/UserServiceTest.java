@@ -29,8 +29,17 @@ class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
     @InjectMocks
     private UserService userService;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     @BeforeEach
     void setUp() {
@@ -43,8 +52,8 @@ class UserServiceTest {
         UserModel userModel = UserModel.builder().build();
         User user = User.builder().build();
         when(userMapper.toUser(userModel)).thenReturn(user);
-       userService.createUser(userModel);
-       verify(userRepository, times(1)).save(user);
+        userService.createUser(userModel);
+        verify(userRepository, times(1)).save(user);
     }
     @Test
     void should_throw_exception_if_save_user_didnot_work() {
@@ -59,8 +68,8 @@ class UserServiceTest {
         UserModel userModel = UserModel.builder().build();
         User user = User.builder().build();
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
-       userService.getUser(1L);
-       verify(userRepository, times(1)).findById(1L);
+        userService.getUser(1L);
+        verify(userRepository, times(1)).findById(1L);
     }
     @Test
     void should_get_exception_ifdoesntExist() {
@@ -68,6 +77,14 @@ class UserServiceTest {
         User user = User.builder().build();
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(RuntimeException.class, () -> userService.getUser(1L));
+    }
+
+    @Test
+    void should__throw_exception_when_fail_to_push_to_rabbitMQ(){
+        ReservationDto reservationDto = ReservationDto.builder().build();
+        doThrow(new RuntimeException("Simulated failure")).when(rabbitTemplate)
+                .convertAndSend(exchange, routingKey, reservationDto);
+        assertThrows(PushEventToQueueFailedException.class, () -> userService.reserveBook(reservationDto));
     }
 
 

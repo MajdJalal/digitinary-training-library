@@ -24,5 +24,6 @@ rabbitmq:
   routing:
     key: user-order-key
 
+
 server:
   port: 8081

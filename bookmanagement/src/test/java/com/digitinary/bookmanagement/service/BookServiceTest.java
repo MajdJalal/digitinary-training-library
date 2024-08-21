@@ -1,5 +1,6 @@
 package com.digitinary.bookmanagement.service;
 
+import com.digitinary.bookmanagement.dto.ReservationDto;
 import com.digitinary.bookmanagement.entity.Book;
 import com.digitinary.bookmanagement.exception.AlreadyExistsRecordException;
 import com.digitinary.bookmanagement.exception.FailedToInsertRecordException;
@@ -76,6 +77,23 @@ public class BookServiceTest {
 
         // Verify that save is never called since the book doesn't exist
         verify(bookRepository, never()).save(any(Book.class));
+    }
+
+    @Test
+    void shouldReserveBookSuccessfully() {
+        Book book = new Book();
+        book.setName("book1");
+        book.setQuantity(5);
+        ReservationDto reservationDto = ReservationDto.builder().bookName("book1").build();
+
+        when(bookRepository.findByName(reservationDto.getBookName())).thenReturn(Optional.of(book));
+
+
+        bookService.reserveBook(reservationDto);
+
+        verify(bookRepository, times(1)).findByName("book1");
+        verify(bookRepository, times(1)).save(book);
+        assert(book.getQuantity() == 4);
     }
 
 

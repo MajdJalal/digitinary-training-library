@@ -53,8 +53,6 @@ public class UserService {
         }
 
     }
-
-
     /**
      * @param reservationDto
      * @throws PushEventToQueueFailedException
@@ -67,7 +65,6 @@ public class UserService {
             logger.error(e.getMessage());
             throw new PushEventToQueueFailedException("failed to push to RabbitMQ");
         }
-
     }
 
     /**
