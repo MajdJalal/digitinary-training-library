@@ -10,4 +10,7 @@ public class BookMapper {
     public Book toBook(BookModel bookModel) {
         return Book.builder().name(bookModel.getName()).quantity(bookModel.getQuantity()).build();
     }
+    public BookModel toBookModel(Book book) {
+        return BookModel.builder().name(book.getName()).quantity(book.getQuantity()).build();
+    }
 }

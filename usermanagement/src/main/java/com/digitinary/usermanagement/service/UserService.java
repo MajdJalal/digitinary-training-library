@@ -90,8 +90,27 @@ public class UserService {
         return userModels;
     }
 
+    /**
+     *  searching the users with the
+     * specs and the pageable passed
+     * @param userFilterationDto
+     * @param pageable
+     * @return Page of UserModel
+     */
     public Page<UserModel> searchUsers(UserFilterationDto userFilterationDto, Pageable pageable) {
+        Specification<User> specs = buildUserSpecification(userFilterationDto);
+        Page<User> users = userRepository.findAll(specs, pageable);
+        return users.map(userMapper::toUserModel);
+    }
+
+    /**
+     * adds specifications based on the passed filters
+     * @param userFilterationDto
+     * @return
+     */
+    private Specification<User> buildUserSpecification(UserFilterationDto userFilterationDto) {
         Specification<User> specs = Specification.where(null);
+
         if(userFilterationDto.getPassedUserId() != null) {
             specs  = specs.and(UserSpecs.hasId(userFilterationDto.getPassedUserId()));
         }
@@ -104,9 +123,12 @@ public class UserService {
         if(userFilterationDto.getPassedUserMembershipId() != null) {
             specs  = specs.and(UserSpecs.hasMembershipId(userFilterationDto.getPassedUserMembershipId()));
         }
+        if(userFilterationDto.getPassedUserMembershipType() != null) {
+            specs  = specs.and(UserSpecs.hasMembershipType(userFilterationDto.getPassedUserMembershipType()));
+        }
 
-        Page<User> users = userRepository.findAll(specs, pageable);
-        Page<UserModel> userModels = users.map(userMapper::toUserModel);
-        return userModels;
+        return specs;
     }
+
+
 }

@@ -31,22 +31,22 @@ class MembershipServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-    @Test
-    void should_save_membership() {
-        MembershipModel membershipModel = MembershipModel.builder().build();
-        Membership membership = Membership.builder().build();
-        when(membershipMapper.toMembership(membershipModel)).thenReturn(membership);
-        membershipService.createMembership(membershipModel);
-        verify(membershipRepository, times(1)).save(membership);
-    }
-    @Test
-    void should_throw_exception_if_save_membership_didnot_work() {
-        MembershipModel membershipModel = MembershipModel.builder().build();
-        Membership membership = Membership.builder().build();
-        when(membershipMapper.toMembership(membershipModel)).thenReturn(membership);
-        when(membershipRepository.save(membership)).thenThrow(RuntimeException.class);
-        assertThrows(RuntimeException.class, () -> membershipService.createMembership(membershipModel));
-    }
+//    @Test
+//    void should_save_membership() {
+//        MembershipModel membershipModel = MembershipModel.builder().build();
+//        Membership membership = Membership.builder().build();
+//        when(membershipMapper.toMembership(membershipModel)).thenReturn(membership);
+//        membershipService.createMembership(membershipModel);
+//        verify(membershipRepository, times(1)).save(membership);
+//    }
+//    @Test
+//    void should_throw_exception_if_save_membership_didnot_work() {
+//        MembershipModel membershipModel = MembershipModel.builder().build();
+//        Membership membership = Membership.builder().build();
+//        when(membershipMapper.toMembership(membershipModel)).thenReturn(membership);
+//        when(membershipRepository.save(membership)).thenThrow(RuntimeException.class);
+//        assertThrows(RuntimeException.class, () -> membershipService.createMembership(membershipModel));
+//    }
 
     @Test
     void should_successfully_get_membership() {

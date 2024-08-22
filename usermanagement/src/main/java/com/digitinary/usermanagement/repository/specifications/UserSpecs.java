@@ -2,6 +2,7 @@ package com.digitinary.usermanagement.repository.specifications;
 
 import com.digitinary.usermanagement.entity.Membership;
 import com.digitinary.usermanagement.entity.User;
+import com.digitinary.usermanagement.enums.MembershipType;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,12 +39,31 @@ public class UserSpecs {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.like(root.get("phoneNumber"), "%" + passedUserPhoneNumber + "%");
     }
+
+    /**
+     * creates a spec to match an exact membership id
+     * @param passedUserMembershipId
+     * @return
+     */
     public static Specification<User> hasMembershipId(Long passedUserMembershipId){
 
             return (root, query, criteriaBuilder) ->{
                 Join<User, Membership> userMembershipJoin = root.join("membership", JoinType.INNER);
-                criteriaBuilder.equal(userMembershipJoin.get("id"), passedUserMembershipId);
-                return null;
+                return criteriaBuilder.equal(userMembershipJoin.get("id"), passedUserMembershipId);
+            };
+
+    }
+
+    /**
+     * creates a spec to match an exact membership type
+     * @param passedUserMembershipType
+     * @return
+     */
+    public static Specification<User> hasMembershipType(MembershipType passedUserMembershipType){
+
+            return (root, query, criteriaBuilder) ->{
+                Join<User, Membership> userMembershipJoin = root.join("membership", JoinType.INNER);
+                return criteriaBuilder.equal(userMembershipJoin.get("membershipType"), passedUserMembershipType);
             };
 
     }

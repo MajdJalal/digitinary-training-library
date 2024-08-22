@@ -1,6 +1,7 @@
 package com.digitinary.bookmanagement.service;
 
 
+import com.digitinary.bookmanagement.dto.BookFilterationDto;
 import com.digitinary.bookmanagement.dto.ReservationDto;
 import com.digitinary.bookmanagement.entity.Book;
 import com.digitinary.bookmanagement.exception.AlreadyExistsRecordException;
@@ -9,9 +10,13 @@ import com.digitinary.bookmanagement.exception.FailedToInsertRecordException;
 import com.digitinary.bookmanagement.mapper.BookMapper;
 import com.digitinary.bookmanagement.model.BookModel;
 import com.digitinary.bookmanagement.repository.BookRepository;
+import com.digitinary.bookmanagement.repository.specifications.BookSpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -77,4 +82,36 @@ public class BookService {
         bookRepository.save(book);
     }
 
+    /**
+     * searching the books with the
+     * specs and the pageable passed
+     * @param bookFilterationDto
+     * @param pageable
+     * @return
+     */
+    public Page<BookModel> searchBooks(BookFilterationDto bookFilterationDto, Pageable pageable) {
+        Specification<Book> specs = buildBookSpecification(bookFilterationDto);
+        Page<Book> users = bookRepository.findAll(specs, pageable);
+        Page<BookModel> bookModels = users.map(bookMapper::toBookModel);
+        return bookModels;
+    }
+
+    /**
+     * adds specifications based on the passed filters
+     * @param bookFilterationDto
+     * @return
+     */
+    private Specification<Book> buildBookSpecification(BookFilterationDto bookFilterationDto) {
+        Specification<Book> specs = Specification.where(null);
+        if(bookFilterationDto.getPassedBookId() != null) {
+            specs  = specs.and(BookSpecs.hasId(bookFilterationDto.getPassedBookId()));
+        }
+        if(bookFilterationDto.getPassedBookName() != null) {
+            specs  = specs.and(BookSpecs.containsName(bookFilterationDto.getPassedBookName()));
+        }
+        if(bookFilterationDto.getPassedBookQuantity() != null) {
+            specs  = specs.and(BookSpecs.hasQuantity(bookFilterationDto.getPassedBookQuantity()));
+        }
+        return specs;
+    }
 }
