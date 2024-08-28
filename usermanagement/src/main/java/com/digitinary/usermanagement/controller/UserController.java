@@ -51,7 +51,7 @@ public class UserController {
                 .body(userModelPage);
     }
     @GetMapping("/search")
-    public ResponseEntity<Page<UserModel>> searchUsers( UserFilterationDto userFilterationDto, Pageable pageable) {
+    public ResponseEntity<Page<UserModel>> searchUsers(UserFilterationDto userFilterationDto, Pageable pageable) {
          Page<UserModel> userModelPage = userService.searchUsers(userFilterationDto, pageable);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userModelPage);

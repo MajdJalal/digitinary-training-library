@@ -13,7 +13,7 @@ spring:
         temp:
           use_sql_comments: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
 
 rabbitmq:

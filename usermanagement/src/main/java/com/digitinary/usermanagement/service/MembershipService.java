@@ -82,13 +82,12 @@ public class MembershipService {
     public Page<MembershipModel> searchMemberships(MembershipFilterationDto membershipFilterationDto, Pageable pageable) {
         Specification<Membership> specs = buildMembershipSpecification(membershipFilterationDto);
         Page<Membership> memberships = membershipRepository.findAll(specs, pageable);
-        Page<MembershipModel> membershipModels = memberships.map(membershipMapper::toMembershipModel);
-        return membershipModels;
+        return memberships.map(membershipMapper::toMembershipModel);
     }
 
     /**
      * adds specifications based on the passed filters
-     * @param membershipFilterationDto
+     * @param membershipFilterationDto membershipFilterationDto
      * @return
      */
     private Specification<Membership> buildMembershipSpecification(MembershipFilterationDto membershipFilterationDto) {
